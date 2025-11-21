@@ -30,7 +30,7 @@ COPY . .
 # Install PHP dependencies without dev packages
 RUN composer install --no-dev --optimize-autoloader
 
-# Cache Laravel configuration, routes, and views
+# Cache Laravel config, routes, and views
 RUN php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache || true
@@ -44,5 +44,8 @@ EXPOSE 8080
 # Change Apache to listen on port 8080
 RUN sed -i 's/80/8080/g' /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
 
-# Start Apache in foreground
+# Set Apache document root to Laravel's public folder
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+# Start Apache
 CMD ["apache2-foreground"]
